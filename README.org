@@ -1,0 +1,21 @@
+
+* ob-giac
+Support du langage giac pour org-babel
+
+* Installation
+
+** À l'aide de [[https://github.com/radian-software/straight.el][straight]]
+
+#+begin_src emacs-lisp
+  (use-package ob-giac
+    :straight (ob-giac :type git :host github :repo "vincek59/ob-giac")
+    )
+#+end_src
+
+
+
+* Configuration
+
+#+begin_src emacs-lisp
+  (add-to-list 'org-babel-load-languages  '(giac . t))
+#+end_src

@@ -28,3 +28,9 @@ Support du langage giac pour org-babel
 #+begin_src giac
   integrate(cos(x)*exp(x),x,0,3)
 #+end_src
+
+
+
+
+[[file:images/exemple_1.png]]
+

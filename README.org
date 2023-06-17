@@ -19,3 +19,12 @@ Support du langage giac pour org-babel
 #+begin_src emacs-lisp
   (add-to-list 'org-babel-load-languages  '(giac . t))
 #+end_src
+
+
+* Utilisation
+
+
+
+#+begin_src giac
+  integrate(cos(x)*exp(x),x,0,3)
+#+end_src

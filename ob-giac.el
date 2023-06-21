@@ -67,13 +67,21 @@
   "Expand BODY according to PARAMS, return the expanded body."
   (require 'inf-giac nil t)
   (let ((vars (org-babel--get-vars (or processed-params (org-babel-process-params params)))))
+    ;; (setq-local maliste vars)
+    ;; (while maliste
+    ;;   (message (format "%s::: %s" (car (car maliste)) (cdr (car maliste)))
+    ;;     (setq maliste (cdr maliste)))
+    ;;   )
     (concat
      (mapconcat ;; define any variables
       (lambda (pair)
-        (format "%s=%S"
-                (car pair) (org-babel-giac-var-to-giac (cdr pair))))
-      vars "\n")
-     "\n" body "\n")))
+        (format "%s:=%s"
+                (car pair) (org-babel-giac-elisp-to-giac (cdr pair))))
+      vars)
+      "\n"
+      body "\n")
+    )
+  )
 
 ;; This is the main function which is called to evaluate a code
 ;; block.
@@ -100,7 +108,7 @@
   "Execute a block of Giac code with org-babel.
 This function is called by `org-babel-execute-src-block'"
   ;(message "Executing Giac source code block")
-  ;(message  "params %s" params)
+  
   ;(message "body: %s " body)
   (let* ((processed-params (org-babel-process-params params))
          ;; set the session if the value of the session keyword is not the
@@ -118,10 +126,11 @@ This function is called by `org-babel-execute-src-block'"
          ;; expand the body with `org-babel-expand-body:giac'
          (full-body (org-babel-expand-body:giac
                      body params processed-params)))
+      
     (last
     (org-babel-comint-with-output
-	(session (format "%s" org-babel-giac-eoe)  body)
-      (dolist (code (list body ))
+	(session (format "%s" org-babel-giac-eoe)  full-body)
+      (dolist (code (list full-body ))
 	(insert (org-babel-chomp code))
 	(message "input: %s" (org-babel-chomp code))
 	(comint-send-input nil t))
@@ -163,8 +172,10 @@ This function is called by `org-babel-execute-src-block'"
 (defun org-babel-giac-var-to-giac (pair)
   "Convert an elisp var into a string of giac source code
 specifying a var of the same value."
+  (message "%S" pair)
   (let ((var (car pair))
         (val (cdr pair)))
+    (message "%s = %s" var val)
     (when (symbolp val)
       (setq val (symbol-name val))
       (when (= (length val) 1)
@@ -177,9 +188,10 @@ specifying a var of the same value."
 
 (defun org-babel-giac-elisp-to-giac (val)
   "Return a string of giac code which evaluates to VAL."
+  
   (if (listp val)
       (concat "[" (mapconcat #'org-babel-giac-elisp-to-giac val ", ") "]")
-    (format "%s" val)))
+    (format "%s; " val)))
 
 
 

@@ -53,4 +53,18 @@ version modifiée de *giac*)
 
 
 
+
 [[file:images/exemple_2.png]]
+
+** Exemple 3
+
+
+#+begin_src giac :var a=6 :var b=8
+integrate(b/(x^2+a),x,0,+infinity)
+#+end_src
+
+#+RESULTS:
+| 8*pi*sqrt(6)/12 |
+
+
+[[file:images/exemple_3.png]]

@@ -1,5 +1,5 @@
+#+TITLE: ob-giac
 
-* ob-giac
 
 Support du langage giac pour org-babel (Attention nécessite une
 version modifiée de *giac*)
@@ -29,8 +29,9 @@ version modifiée de *giac*)
 
 ** Exemple 1
 
-#+begin_src giac
+#+begin_src giac :session t
   integrate(cos(x)*exp(x),x,0,3)
+	  
 #+end_src
 
 #+RESULTS:
@@ -41,13 +42,15 @@ version modifiée de *giac*)
 [[file:images/exemple_1.png]]
 
 ** Exemple 2
-#+begin_src giac
+
+#+begin_src giac :session t
+  
   f(x):=exp(x)*cos(x)+x^3
   g:=unapply(diff(f(x),x),x)
   g(x)
   latex(g(x))
 
-  #+end_src
+#+end_src
 #+RESULTS:
 | "\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}" |
 
@@ -58,13 +61,21 @@ version modifiée de *giac*)
 
 ** Exemple 3
 
-
-#+begin_src giac :var a=6 :var b=8
+#+NAME: integration
+#+begin_src giac :var a=6 :var b=8 :session t
 integrate(b/(x^2+a),x,0,+infinity)
 #+end_src
 
-#+RESULTS:
+#+RESULTS: integration
 | 8*pi*sqrt(6)/12 |
 
 
 [[file:images/exemple_3.png]]
+
+
+
+
+#+CALL: integration(a=5,b=-3)
+
+#+RESULTS:
+| -3*pi*sqrt(5)/10 |

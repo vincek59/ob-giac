@@ -23,7 +23,7 @@ Support du langage giac pour org-babel
 
 * Utilisation
 
-
+** Exemple 1
 
 #+begin_src giac
   integrate(cos(x)*exp(x),x,0,3)
@@ -36,7 +36,7 @@ Support du langage giac pour org-babel
 
 [[file:images/exemple_1.png][Exemple n°1]]
 
-
+** Exemple 2
 #+begin_src giac
   f(x):=exp(x)*cos(x)+x^3
   g:=unapply(diff(f(x),x),x)

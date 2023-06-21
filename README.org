@@ -1,6 +1,10 @@
 
 * ob-giac
-Support du langage giac pour org-babel
+
+Support du langage giac pour org-babel (Attention nécessite une
+version modifiée de *giac*)
+
+
 
 * Installation
 
@@ -34,7 +38,7 @@ Support du langage giac pour org-babel
 
 
 
-[[file:images/exemple_1.png][Exemple n°1]]
+[[file:images/exemple_1.png]]
 
 ** Exemple 2
 #+begin_src giac
@@ -49,4 +53,4 @@ Support du langage giac pour org-babel
 
 
 
-[[file:images/exemple_2.png][Exemple n°2]]
+[[file:images/exemple_2.png]]

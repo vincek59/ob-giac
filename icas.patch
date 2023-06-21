@@ -1,0 +1,58 @@
+--- src/icas.cc	2023-06-20 15:44:18.447347817 +0200
++++ origin/icas.cc	2022-11-15 10:24:54.000000000 +0100
+@@ -45,9 +45,6 @@
+ #include <sys/time.h>
+ #endif
+ //#include <unistd.h> // For reading arguments from file
+-
+-
+-#include <regex> 
+ #include <fcntl.h>
+ #include <cstdlib>
+ #include "gen.h"
+@@ -2122,7 +2119,6 @@
+ 	break;
+       string s(res);
+       int bs=s.size();
+-      
+       if (s=="python"){
+ #ifdef HAVE_LIBMICROPYTHON
+ 	python_compat(4 | python_compat(contextptr),contextptr);
+@@ -2147,9 +2143,6 @@
+ 	printf("%s\n","Switching to giac interpreter");
+ 	continue;
+       }
+-
+-      
+-      
+       if (s=="js"){
+ #ifdef QUICKJS
+ 	python_compat(-1,contextptr);
+@@ -2159,19 +2152,6 @@
+ #endif
+ 	continue;
+       }
+-
+-      // empty string
+-      if (s=="")
+-	{
+-	  continue;
+-	}
+-      //comment string
+-      if(std::regex_match (s, std::regex("\\s*/\\*.*\\*/.*|\\s*//.*") ))
+-	{
+-	  printf("%s\n",s.c_str());
+-	  continue;
+-	}
+-     
+       if (micropyjs_evaled(s,contextptr))
+ 	continue;
+       if (insage && bs && s[bs-1]==63){
+@@ -2204,7 +2184,6 @@
+ 	continue;
+       }
+       s += '\n';
+-     
+ #ifdef HAVE_SIGNAL_H_OLD
+       giac::messages_to_print="";
+ #endif

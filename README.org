@@ -29,8 +29,24 @@ Support du langage giac pour org-babel
   integrate(cos(x)*exp(x),x,0,3)
 #+end_src
 
+#+RESULTS:
+| 1/2*(sin(3)*exp(3)+cos(3)*exp(3))-1/2 |
 
 
 
-[[file:images/exemple_1.png]]
+[[file:images/exemple_1.png][Exemple n°1]]
 
+
+#+begin_src giac
+  f(x):=exp(x)*cos(x)+x^3
+  g:=unapply(diff(f(x),x),x)
+  g(x)
+  latex(g(x))
+
+  #+end_src
+#+RESULTS:
+| "\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}" |
+
+
+
+[[file:images/exemple_2.png][Exemple n°2]]

@@ -41,6 +41,8 @@
 (require 'ob-ref)
 (require 'ob-comint)
 (require 'ob-eval)
+(require 's)
+
 ;; possibly require modes required for your language
 
 ;; optionally define a file extension for this language
@@ -50,9 +52,9 @@
 (defvar org-babel-default-header-args:giac '())
 
 
+(setq comint-prompt-regexp "[0-9]+>>")
 
-
-(defvar org-babel-giac-eoe "// Time"
+(defvar org-babel-giac-eoe "/* Stop */"
  "String to indicate that evaluation has completed.")
 
 
@@ -97,16 +99,17 @@
 (defun org-babel-execute:giac (body params)
   "Execute a block of Giac code with org-babel.
 This function is called by `org-babel-execute-src-block'"
-  (message "Executing Giac source code block")
-  (message  "params %s" params)
-  (message "body: %s " body)
+  ;(message "Executing Giac source code block")
+  ;(message  "params %s" params)
+  ;(message "body: %s " body)
   (let* ((processed-params (org-babel-process-params params))
          ;; set the session if the value of the session keyword is not the
          ;; string `none'
 	 
          (session (unless (string= "session" "none")
 		    (org-babel-giac-initiate-session
-                    (cdr (assq :session processed-params)))))
+                     (cdr (assq :session processed-params)))))
+	
          ;; variables assigned for use in the block
          (vars (org-babel--get-vars processed-params))
          (result-params (assq :result-params processed-params))
@@ -115,47 +118,49 @@ This function is called by `org-babel-execute-src-block'"
          ;; expand the body with `org-babel-expand-body:giac'
          (full-body (org-babel-expand-body:giac
                      body params processed-params)))
-        
-         (nth 0
-	      (org-babel-comint-with-output
-		  (session (format "%S" org-babel-giac-eoe)  body)
-		(dolist (code (list body  (format "%S" org-babel-giac-eoe) ))
-		  (insert (org-babel-chomp code))
-		  (comint-send-input nil t))))
-    ;; actually execute the source-code block either in a session or
-    ;; possibly by dropping it to a temporary file and evaluating the
-    ;; file.
-    ;; 
-    ;; for session based evaluation the functions defined in
-    ;; `org-babel-comint' will probably be helpful.
-    ;;
-    ;; for external evaluation the functions defined in
-    ;; `org-babel-eval' will probably be helpful.
-    ;;
-    ;; when forming a shell command, or a fragment of code in some
-    ;; other language, please preprocess any file names involved with
-    ;; the function `org-babel-process-file-name'. (See the way that
-    ;; function is used in the language files)
+    (last
+    (org-babel-comint-with-output
+	(session (format "%s" org-babel-giac-eoe)  body)
+      (dolist (code (list body ))
+	(insert (org-babel-chomp code))
+	(message "input: %s" (org-babel-chomp code))
+	(comint-send-input nil t))
+      (insert (format "%s" org-babel-giac-eoe) )
+      	(comint-send-input nil )
+	)
+    3)
+	
+      
+    
+
     ))
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
+
 (defun org-babel-prep-session:giac (session params)
   "Prepare SESSION according to the header arguments specified in PARAMS."
-   (let* ((session (org-babel-giac-initiate-session session))
-	 )
+  (let* ((session (org-babel-giac-initiate-session session))
+	 (vars (list "maple\_mode(0)\n"))
+	  )
+   ; (comint-send-string session "maple\_mode(0)\n")
     (when session
+     
       (org-babel-comint-in-buffer session
-	(goto-char (point-max))
-	(dolist  (insert var)
-	  (comint-send-input nil t)
-	  (org-babel-comint-wait-for-output session)
-	  (sit-for .1)
-	  (goto-char (point-max)))))
+	(mapc (lambda (var)
+		(end-of-line 1)
+		(insert (org-babel-chomp   var))
+		(comint-send-input nil t)
+	      )
+	    vars))
+    
     session)
+    )
   )
 
-(defun org-babel-giac-var-to-giac (var)
+
+
+(defun org-babel-giac-var-to-giac (pair)
   "Convert an elisp var into a string of giac source code
 specifying a var of the same value."
   (let ((var (car pair))
@@ -190,11 +195,43 @@ Return the initialized session."
 
     (let ((session (or session "*giac*")))
 
-      (apply 'make-comint "giac" "giac" nil)
-
+      (apply 'make-comint "giac" "/usr/local/bin/giac" nil)
+      
       )
     
     ))
+
+(defconst my-keywords '("integrate" "diff" "factor" "expand" "eigenvalues" "eigenvects"))
+
+(defun giac-dynamic-completion-function ()
+  (when-let* ((bds (bounds-of-thing-at-point 'symbol))
+              (beg (car bds))
+              (end (cdr bds)))
+    (when (> end beg)
+      (list beg end my-keywords :annotation-function (lambda (_) "my-keywords")))))
+
+(define-derived-mode giac-mode comint-mode "giac mode"
+  ;; How to dispaly the process status in the mode-line
+  (setq mode-line-process '(":%s"))
+  ;; This disables editing and traversing the "=>" prompts
+  (setq-local comint-prompt-read-only t)
+  ;; Lets comint mode recognize the prompt
+  (setq-local comint-prompt-regexp "[0-9]+>>")
+
+
+  ;;
+  (setq-local comint-input-history-ignore "^//")
+  (add-hook 'comint-dynamic-complete-functions
+            #'giac-dynamic-completion-function nil 'local)
+  (make-local-variable 'company-backends)
+  (cl-pushnew 'company-capf company-backends))
+
+
+
+(defun giac-end-of-ouput (string)
+  "Return non-nil si le prompt est vide"
+  (s-matches? comint-prompt-regexp string )
+  )
 
 (provide 'ob-giac)
 ;;; ob-giac.el ends here

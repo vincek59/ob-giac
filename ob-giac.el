@@ -42,11 +42,11 @@
 (require 'ob-comint)
 (require 'ob-eval)
 (require 's)
-
+(require 'giac)
 ;; possibly require modes required for your language
 
 ;; optionally define a file extension for this language
-(add-to-list 'org-babel-tangle-lang-exts '("giac" . "tmp"))
+(add-to-list 'org-babel-tangle-lang-exts '("giac" . "gac"))
 
 ;; optionally declare default header arguments for this language
 (defvar org-babel-default-header-args:giac '())
@@ -110,14 +110,15 @@ This function is called by `org-babel-execute-src-block'"
   ;(message "Executing Giac source code block")
   
   ;(message "body: %s " body)
-  (let* ((processed-params (org-babel-process-params params))
+ 
+       (let* ((processed-params (org-babel-process-params params))
          ;; set the session if the value of the session keyword is not the
          ;; string `none'
 	 
-         (session (unless (string= "session" "none")
-		    (org-babel-giac-initiate-session
-                     (cdr (assq :session processed-params)))))
-	
+         ;; (session (unless (string= "session" "none")
+	 ;; 	    (org-babel-giac-initiate-session
+         ;;             (cdr (assq :session processed-params)))))
+	(session   (org-babel-giac-initiate-session "*giac*"))
          ;; variables assigned for use in the block
          (vars (org-babel--get-vars processed-params))
          (result-params (assq :result-params processed-params))
@@ -126,23 +127,32 @@ This function is called by `org-babel-execute-src-block'"
          ;; expand the body with `org-babel-expand-body:giac'
          (full-body (org-babel-expand-body:giac
                      body params processed-params)))
-      
+					; (delete-blank-lines full-body)
+	 ;; Remove empty lines
+	 (setf full-body (replace-regexp-in-string "^[:empty:]*\n" "" full-body))
+	 ;; Remove newline in function body
+	 ;(setf full-body (replace-regexp-in-string ";[[:blank:]]*\n" "; " full-body))
+	 ;(setf full-body (replace-regexp-in-string "{[[:blank:]]*\n" "{ " full-body))
+	 ;(setf full-body (replace-regexp-in-string "}[[:blank:]]*\n" "} " full-body))
+	                                                    
+	 (setf full-body (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 " full-body))
+	 (message full-body)
     (last
     (org-babel-comint-with-output
 	(session (format "%s" org-babel-giac-eoe)  full-body)
       (dolist (code (list full-body ))
 	(insert (org-babel-chomp code))
-	(message "input: %s" (org-babel-chomp code))
+;	(message "input: %s" (org-babel-chomp code))
 	(comint-send-input nil t))
       (insert (format "%s" org-babel-giac-eoe) )
       	(comint-send-input nil )
 	)
     3)
 	
-      
     
 
-    ))
+    )
+  )
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
@@ -182,8 +192,6 @@ specifying a var of the same value."
         (setq val (string-to-char val))))
     (format "%S:= %s$" var
 	    (org-babel-giac-elisp-to-giac val)))
-
-
   )
 
 (defun org-babel-giac-elisp-to-giac (val)
@@ -213,17 +221,24 @@ Return the initialized session."
     
     ))
 
-(defconst my-keywords '("integrate" "diff" "factor" "expand" "eigenvalues" "eigenvects"))
+(defconst giac-keywords '("integrate" "diff" "factor" "expand" "eigenvalues" "eigenvects" "developper" "simplifier" "simplify" "deriver" "factoriser") "Liste de quelques mots clef de giac")
+
+(defvar giac-font-lock-keywords
+  (list
+   ;; highlight all the reserved commands.
+   `(,(concat "\\_<" (regexp-opt giac-keywords) "\\_>") . font-lock-keyword-face))
+  "Additional expressions to highlight in `giac-mode'.")
 
 (defun giac-dynamic-completion-function ()
   (when-let* ((bds (bounds-of-thing-at-point 'symbol))
               (beg (car bds))
               (end (cdr bds)))
     (when (> end beg)
-      (list beg end my-keywords :annotation-function (lambda (_) "my-keywords")))))
+      (list beg end giac-keywords :annotation-function (lambda (_) "my-keywords")))))
 
-(define-derived-mode giac-mode comint-mode "giac mode"
-  ;; How to dispaly the process status in the mode-line
+
+(define-derived-mode giac-comint-mode comint-mode "giac comint mode"
+  ;; How to display the process status in the mode-line
   (setq mode-line-process '(":%s"))
   ;; This disables editing and traversing the "=>" prompts
   (setq-local comint-prompt-read-only t)

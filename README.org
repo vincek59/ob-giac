@@ -79,3 +79,20 @@ integrate(b/(x^2+a),x,0,+infinity)
 
 #+RESULTS:
 | -3*pi*sqrt(5)/10 |
+
+
+#+begin_src giac
+  lancers(n):={                                                                    
+  local t=[0,0,0,0,0,0];                                                        
+  local l;                                                                        
+  for (j:=1;j<=n;j++) {                                                          
+  l:=rand(6);                                                                    
+  t[l]:=t[l]+1;                                                                  
+  }                                                                              
+  return t;}
+  lancers(12000)	 
+
+#+end_src
+
+#+RESULTS:
+| return(t),lancers(12000) |

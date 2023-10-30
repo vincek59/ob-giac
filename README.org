@@ -1,8 +1,8 @@
 #+TITLE: ob-giac
 
 
-Support du langage giac pour org-babel (Attention nécessite une
-version modifiée de *giac*) et un mode majeur pour éditer les fichiers
+Support du langage giac pour [[https://orgmode.org/worg/org-contrib/babel/][org-babel]] (Attention nécessite une
+version récente de [[https://xcas.univ-grenoble-alpes.fr/][xcas]]) et un mode majeur pour éditer les fichiers
 sources *giac*.
 
 

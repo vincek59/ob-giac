@@ -74,9 +74,15 @@ sources *giac*.
 
 
 #+CALL: integration(a=5,b=-3)
-
 #+RESULTS:
 | -3*pi*sqrt(5)/10 |
+
+
+
+[[file:images/exemple_5.png]]
+
+
+
 
 ** Exemple 4
 

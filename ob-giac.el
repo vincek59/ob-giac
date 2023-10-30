@@ -42,7 +42,7 @@
 (require 'ob-comint)
 (require 'ob-eval)
 (require 's)
-(require 'giac)
+(require 'giac-mode)
 ;; possibly require modes required for your language
 
 ;; optionally define a file extension for this language
@@ -221,21 +221,18 @@ Return the initialized session."
     
     ))
 
-(defconst giac-keywords '("integrate" "diff" "factor" "expand" "eigenvalues" "eigenvects" "developper" "simplifier" "simplify" "deriver" "factoriser") "Liste de quelques mots clef de giac")
-
-(defvar giac-font-lock-keywords
-  (list
-   ;; highlight all the reserved commands.
-   `(,(concat "\\_<" (regexp-opt giac-keywords) "\\_>") . font-lock-keyword-face))
-  "Additional expressions to highlight in `giac-mode'.")
+;; (defvar giac-font-lock-keywords
+;;   (list
+;;    ;; highlight all the reserved commands.
+;;    `(,(concat "\\_<" (regexp-opt giac-keywords) "\\_>") . font-lock-keyword-face))
+;;   "Additional expressions to highlight in `giac-mode'.")
 
 (defun giac-dynamic-completion-function ()
   (when-let* ((bds (bounds-of-thing-at-point 'symbol))
               (beg (car bds))
               (end (cdr bds)))
     (when (> end beg)
-      (list beg end giac-keywords :annotation-function (lambda (_) "my-keywords")))))
-
+      (list beg end giac-keywords :annotation-function (lambda (_) "giac-keywords")))))
 
 (define-derived-mode giac-comint-mode comint-mode "giac comint mode"
   ;; How to display the process status in the mode-line

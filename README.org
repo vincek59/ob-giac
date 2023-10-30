@@ -2,8 +2,8 @@
 
 
 Support du langage giac pour org-babel (Attention nécessite une
-version modifiée de *giac*)
-
+version modifiée de *giac*) et un mode majeur pour éditer les fichiers
+sources *giac*.
 
 
 * Installation
@@ -44,7 +44,6 @@ version modifiée de *giac*)
 ** Exemple 2
 
 #+begin_src giac :session t
-  
   f(x):=exp(x)*cos(x)+x^3
   g:=unapply(diff(f(x),x),x)
   g(x)
@@ -55,15 +54,14 @@ version modifiée de *giac*)
 | "\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}" |
 
 
-
-
 [[file:images/exemple_2.png]]
 
 ** Exemple 3
 
 #+NAME: integration
 #+begin_src giac :var a=6 :var b=8 :session t
-integrate(b/(x^2+a),x,0,+infinity)
+  c:=integrer(b/(x^2+a),x,0,+infinity)
+  c	
 #+end_src
 
 #+RESULTS: integration
@@ -80,19 +78,32 @@ integrate(b/(x^2+a),x,0,+infinity)
 #+RESULTS:
 | -3*pi*sqrt(5)/10 |
 
+** Exemple 4
+
 
 #+begin_src giac
-  lancers(n):={                                                                    
-  local t=[0,0,0,0,0,0];                                                        
-  local l;                                                                        
-  for (j:=1;j<=n;j++) {                                                          
-  l:=rand(6);                                                                    
-  t[l]:=t[l]+1;                                                                  
-  }                                                                              
-  return t;}
-  lancers(12000)	 
-
+    lancers(n):={                                                                    
+	  local t=[0,0,0,0,0,0];
+	    local l;
+	    for (j:=1 ; j<=n ; j++) {                                                          
+		l:=rand(6);                                                                    
+		t[l]:=t[l]+1;
+		}
+	    return t;
+	 
+  }
 #+end_src
 
 #+RESULTS:
-| return(t),lancers(12000) |
+| // Interprète lancers |
+
+#+begin_src giac
+  lancers(12000)	 	  
+#+end_src
+
+#+RESULTS:
+| [2020,1944,2029,1995,2030,1982] |
+
+
+[[file:images/exemple_4.png]]
+

@@ -46,9 +46,9 @@
   "Command to invoke giac"
   :group 'ob-giac
   :type 'string)
+(defvar giac-last-output nil "Dernière sortie de giac")
 
 
-;; possibly require modes required for your language
 
 
 
@@ -163,14 +163,16 @@ This function is called by `org-babel-execute-src-block'"
 				(comint-send-input nil t))
 			      (insert (format "%s" org-babel-giac-eoe) )
       			      (comint-send-input nil )	)))
-	 
+	 ;; On garde l'antépénultième sortie  
 	 (setq giac-last-output  (car
 				  (split-string
 				   (car
 				    (last sortie-brute 3)
 				    ) "\n")
 				  ))
+	 
 	 (string-match ".*\"\\(.*?\\)\""  giac-last-output  )
+	 ;;Si :latex t, nettoyer la sortie et la mettre entre \( \)
 	 (if (string= latex "t") (concat "\\(" (match-string 1 giac-last-output ) "\\)") giac-last-output)
 	 )
 	 

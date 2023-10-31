@@ -73,6 +73,7 @@ sources *giac*.
 [[file:images/exemple_6.png]]
 
 *** Sortie en latex combinée avec *org-fragtog-mode*
+
 #+begin_src giac :session t :latex t :results drawer raw
   f(x):=exp(x)*cos(x)+x^3
   g:=unapply(diff(f(x),x),x)

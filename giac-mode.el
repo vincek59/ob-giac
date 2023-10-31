@@ -15,7 +15,7 @@
 (defun myC(lst)
   (if (equal (length lst) 0) nil
     (if (equal (length lst) 1) (car lst)
-			   (concat (car lst) "\\|" (myC (cdr lst )))
+			   (concat (car lst) "(\\|" (myC (cdr lst )))
 			   )
     )
   )
@@ -71,8 +71,10 @@
 
 ;(setq giac-builtins-regexp (regexp-opt giac-functions-names 'symbols))
 
-(setq giac-builtins-regexp (myC  giac-functions-names ) )
+;(setq giac-builtins-regexp (myC  giac-functions-names ) )
 
+
+(setq giac-builtins-regexp (mapconcat 'identity giac-functions-names "(\\|"))
 (defconst giac-font-lock-keywords-1 (c-lang-const c-matchers-1 giac)
   "Minimal highlighting for giac mode.")
 

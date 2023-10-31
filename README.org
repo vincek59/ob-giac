@@ -42,40 +42,73 @@ sources *giac*.
 [[file:images/exemple_1.png]]
 
 ** Exemple 2
-
+*** Avec plusieurs lignes
 #+begin_src giac :session t
   f(x):=exp(x)*cos(x)+x^3
   g:=unapply(diff(f(x),x),x)
   g(x)
-  latex(g(x))
+  
 
 #+end_src
 #+RESULTS:
-| "\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}" |
+:  exp(x)*cos(x)-exp(x)*sin(x)+3*x^2
 
 
 [[file:images/exemple_2.png]]
 
+*** Sortie en latex
+
+#+begin_src giac :session t :latex t 
+  f(x):=exp(x)*cos(x)+x^3
+  g:=unapply(diff(f(x),x),x)
+  g(x)
+  
+
+#+end_src
+
+#+RÉSULTATS:
+: \(\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}\)
+
+
+[[file:images/exemple_6.png]]
+
+*** Sortie en latex combinée avec *org-fragtog-mode*
+#+begin_src giac :session t :latex t :results drawer raw
+  f(x):=exp(x)*cos(x)+x^3
+  g:=unapply(diff(f(x),x),x)
+  g(x)
+  
+
+#+end_src
+
+#+RÉSULTATS:
+\(\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}\)
+
+
+
+[[file:images/exemple_7.png]]
+
 ** Exemple 3
 
+*** Avec des variables en entête.
 #+NAME: integration
 #+begin_src giac :var a=6 :var b=8 :session t
   c:=integrer(b/(x^2+a),x,0,+infinity)
-  c	
+ 
 #+end_src
 
-#+RESULTS: integration
-| 8*pi*sqrt(6)/12 |
+#+RÉSULTATS: integration
+:  8*pi*sqrt(6)/12
 
 
 [[file:images/exemple_3.png]]
 
 
-
+*** Réutilisation d'un bloc
 
 #+CALL: integration(a=5,b=-3)
 #+RESULTS:
-| -3*pi*sqrt(5)/10 |
+:  -3*pi*sqrt(5)/10
 
 
 

@@ -5,7 +5,7 @@
 ;; Author: Vincek
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: https://orgmode.org
-;; Version: 0.01
+;; Version: 0.02
 
 ;;; License:
 
@@ -24,12 +24,7 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-;; Finally you can use `edebug' to instrumentalize
-;; `org-babel-expand-body:giac' and continue to evaluate the code block. You
-;; try to add header keywords and change the body of the code block and
-;; reevaluate the code block to observe how things get handled.
-
-;;; Requirements:
+;;; Requirements: giac, linux?? 
 
 ;; Use this section to list the requirements of this language.  Most
 ;; languages will require that at least the language be installed on
@@ -43,7 +38,22 @@
 (require 'ob-eval)
 (require 's)
 (require 'giac-mode)
+
+(defgroup ob-giac nil
+  "Options de configuration d'ob-giac"
+  :group 'babel)
+(defcustom giac-program "/usr/local/bin/giac"
+  "Command to invoke giac"
+  :group 'ob-giac
+  :type 'string)
+
+
 ;; possibly require modes required for your language
+
+
+
+
+
 
 ;; optionally define a file extension for this language
 (add-to-list 'org-babel-tangle-lang-exts '("giac" . "gac"))
@@ -66,12 +76,25 @@
 (defun org-babel-expand-body:giac (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
   (require 'inf-giac nil t)
-  (let ((vars (org-babel--get-vars (or processed-params (org-babel-process-params params)))))
+  (let (
+	(vars (org-babel--get-vars (or processed-params (org-babel-process-params params))))
+	(latex (cdr (assq :latex processed-params)))
+	)
     ;; (setq-local maliste vars)
     ;; (while maliste
     ;;   (message (format "%s::: %s" (car (car maliste)) (cdr (car maliste)))
     ;;     (setq maliste (cdr maliste)))
     ;;   )
+    
+    ;; Remove empty lines
+    (setf body (replace-regexp-in-string "^[:empty:]*\n" "" body))
+    ;; Remove newline in function body
+	 ;(setf full-body (replace-regexp-in-string ";[[:blank:]]*\n" "; " full-body))
+	 ;(setf full-body (replace-regexp-in-string "{[[:blank:]]*\n" "{ " full-body))
+	 ;(setf full-body (replace-regexp-in-string "}[[:blank:]]*\n" "} " full-body))
+	                                                    
+    (setf body (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 " body))
+    (message latex)
     (concat
      (mapconcat ;; define any variables
       (lambda (pair)
@@ -79,7 +102,7 @@
                 (car pair) (org-babel-giac-elisp-to-giac (cdr pair))))
       vars)
       "\n"
-      body "\n")
+      body "\n" (if (string= latex "t") "latex(ans(-1))"))
     )
   )
 
@@ -114,45 +137,46 @@ This function is called by `org-babel-execute-src-block'"
        (let* ((processed-params (org-babel-process-params params))
          ;; set the session if the value of the session keyword is not the
          ;; string `none'
-	 
+
+	      
          ;; (session (unless (string= "session" "none")
 	 ;; 	    (org-babel-giac-initiate-session
          ;;             (cdr (assq :session processed-params)))))
-	(session   (org-babel-giac-initiate-session "*giac*"))
+	 (session   (org-babel-giac-initiate-session "*giac*"))
+	      
          ;; variables assigned for use in the block
          (vars (org-babel--get-vars processed-params))
          (result-params (assq :result-params processed-params))
-         ;; either OUTPUT or VALUE which should behave as described above
+	 (latex (cdr (assq :latex processed-params)))
+	 ;; either OUTPUT or VALUE which should behave as described above
          (result-type (assq :result-type processed-params))
-         ;; expand the body with `org-babel-expand-body:giac'
-         (full-body (org-babel-expand-body:giac
-                     body params processed-params)))
-					; (delete-blank-lines full-body)
-	 ;; Remove empty lines
-	 (setf full-body (replace-regexp-in-string "^[:empty:]*\n" "" full-body))
-	 ;; Remove newline in function body
-	 ;(setf full-body (replace-regexp-in-string ";[[:blank:]]*\n" "; " full-body))
-	 ;(setf full-body (replace-regexp-in-string "{[[:blank:]]*\n" "{ " full-body))
-	 ;(setf full-body (replace-regexp-in-string "}[[:blank:]]*\n" "} " full-body))
-	                                                    
-	 (setf full-body (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 " full-body))
-	 (message full-body)
-    (last
-    (org-babel-comint-with-output
-	(session (format "%s" org-babel-giac-eoe)  full-body)
-      (dolist (code (list full-body ))
-	(insert (org-babel-chomp code))
-;	(message "input: %s" (org-babel-chomp code))
-	(comint-send-input nil t))
-      (insert (format "%s" org-babel-giac-eoe) )
-      	(comint-send-input nil )
-	)
-    3)
-	
-    
 
-    )
-  )
+	 ;; expand the body with `org-babel-expand-body:giac'
+         (full-body (org-babel-expand-body:giac
+                     body params processed-params))
+					; (delete-blank-lines full-body)
+	 (sortie-brute  (org-babel-comint-with-output
+				(session (format "%s" org-babel-giac-eoe)  full-body)
+			      (dolist (code (list full-body ))
+				(insert (org-babel-chomp code))
+;	(message "input: %s" (org-babel-chomp code))
+				(comint-send-input nil t))
+			      (insert (format "%s" org-babel-giac-eoe) )
+      			      (comint-send-input nil )	)))
+	 
+	 (setq giac-last-output  (car
+				  (split-string
+				   (car
+				    (last sortie-brute 3)
+				    ) "\n")
+				  ))
+	 (string-match ".*\"\\(.*?\\)\""  giac-last-output  )
+	 (if (string= latex "t") (concat "\\(" (match-string 1 giac-last-output ) "\\)") giac-last-output)
+	 )
+	 
+       
+
+       )
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
@@ -215,7 +239,7 @@ Return the initialized session."
 
     (let ((session (or session "*giac*")))
 
-      (apply 'make-comint "giac" "/usr/local/bin/giac" nil)
+      (apply 'make-comint "giac" giac-program nil)
       
       )
     

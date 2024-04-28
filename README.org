@@ -16,6 +16,8 @@ sources *giac*.
     )
 #+end_src
 
+#+RÉSULTATS:
+
 
 
 * Configuration
@@ -24,19 +26,23 @@ sources *giac*.
   (add-to-list 'org-babel-load-languages  '(giac . t))
 #+end_src
 
+#+RESULTS:
+: ((shell . t) (latex . t) (C . t) (jupyter . t) (maxima . t) (giac . t))
+
+
+
 
 * Utilisation
 
 ** Exemple 1
 
-#+begin_src giac :session t
+#+begin_src giac 
   integrate(cos(x)*exp(x),x,0,3)
 	  
 #+end_src
 
 #+RESULTS:
-| 1/2*(sin(3)*exp(3)+cos(3)*exp(3))-1/2 |
-
+: 1/2*(sin(3)*exp(3)+cos(3)*exp(3))-1/2
 
 
 [[file:images/exemple_1.png]]
@@ -51,7 +57,7 @@ sources *giac*.
 
 #+end_src
 #+RESULTS:
-:  exp(x)*cos(x)-exp(x)*sin(x)+3*x^2
+: exp(x)*cos(x)-exp(x)*sin(x)+3*x^2
 
 
 [[file:images/exemple_2.png]]
@@ -66,9 +72,8 @@ sources *giac*.
 
 #+end_src
 
-#+RÉSULTATS:
+#+RESULTS:
 : \(\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}\)
-
 
 [[file:images/exemple_6.png]]
 
@@ -82,9 +87,9 @@ sources *giac*.
 
 #+end_src
 
-#+RÉSULTATS:
+#+RESULTS:
 \(\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}\)
-
+\(\mathrm{e}^{x} \cos x-\mathrm{e}^{x} \sin x+3 x^{2}\)
 
 
 [[file:images/exemple_7.png]]
@@ -92,15 +97,15 @@ sources *giac*.
 ** Exemple 3
 
 *** Avec des variables en entête.
+
 #+NAME: integration
-#+begin_src giac :var a=6 :var b=8 :session t
+#+begin_src giac :var a=6 b=8
   c:=integrer(b/(x^2+a),x,0,+infinity)
  
 #+end_src
 
-#+RÉSULTATS: integration
-:  8*pi*sqrt(6)/12
-
+#+RESULTS: integration
+: 8*pi*sqrt(6)/12
 
 [[file:images/exemple_3.png]]
 
@@ -109,7 +114,7 @@ sources *giac*.
 
 #+CALL: integration(a=5,b=-3)
 #+RESULTS:
-:  -3*pi*sqrt(5)/10
+: -3*pi*sqrt(5)/10
 
 
 
@@ -123,26 +128,20 @@ sources *giac*.
 
 #+begin_src giac
     lancers(n):={                                                                    
-	  local t=[0,0,0,0,0,0];
-	    local l;
-	    for (j:=1 ; j<=n ; j++) {                                                          
-		l:=rand(6);                                                                    
-		t[l]:=t[l]+1;
-		}
-	    return t;
-	 
-  }
+    		local t=[0,0,0,0,0,0];
+      	    local j,l;
+      	    for (j:=1 ; j<=n ; j++) {                                                          
+      		l:=rand(6);                                                                    
+    				t[l]:=t[l]+1;
+      		}
+      	    return t;
+    }
+    
+   lancers(12000)
 #+end_src
 
 #+RESULTS:
-| // Interprète lancers |
-
-#+begin_src giac
-  lancers(12000)	 	  
-#+end_src
-
-#+RESULTS:
-| [2020,1944,2029,1995,2030,1982] |
+: [2011,1996,1976,1999,1905,2113]
 
 
 [[file:images/exemple_4.png]]

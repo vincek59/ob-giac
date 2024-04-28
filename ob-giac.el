@@ -1,10 +1,7 @@
-;;; ob-template.el --- org-babel functions for template evaluation
-
-;; Copyright (C) your name here
+;; Copyright (C) Vincek
 
 ;; Author: Vincek
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
 ;; Version: 0.02
 
 ;;; License:
@@ -50,11 +47,6 @@
 
 
 
-
-
-
-
-
 ;; optionally define a file extension for this language
 (add-to-list 'org-babel-tangle-lang-exts '("giac" . "gac"))
 
@@ -87,22 +79,25 @@
     ;;   )
     
     ;; Remove empty lines
-    (setf body (replace-regexp-in-string "^[:empty:]*\n" "" body))
-    ;; Remove newline in function body
+ 
+   ; (setf body (replace-regexp-in-string "^[:empty:]*\n" "" body))
+     ;; Remove newline in function body
 	 ;(setf full-body (replace-regexp-in-string ";[[:blank:]]*\n" "; " full-body))
 	 ;(setf full-body (replace-regexp-in-string "{[[:blank:]]*\n" "{ " full-body))
 	 ;(setf full-body (replace-regexp-in-string "}[[:blank:]]*\n" "} " full-body))
-	                                                    
-    (setf body (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 " body))
-    (message latex)
+    (message "BI:%s" body)                                                
+    (setf body
+	  (replace-regexp-in-string "\t" ""
+	  (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 "
+          (replace-regexp-in-string "^[:empty:]*\n" "" body)))
+	  )
+   (message "BF:%s" body)
     (concat
      (mapconcat ;; define any variables
       (lambda (pair)
-        (format "%s:=%s"
+        (format "%s:=%s;"
                 (car pair) (org-babel-giac-elisp-to-giac (cdr pair))))
-      vars)
-      "\n"
-      body "\n" (if (string= latex "t") "latex(ans(-1))"))
+      vars)  "\n"   body "\n" (if (string= latex "t") "latex(ans(-1))"))
     )
   )
 
@@ -163,17 +158,25 @@ This function is called by `org-babel-execute-src-block'"
 				(comint-send-input nil t))
 			      (insert (format "%s" org-babel-giac-eoe) )
       			      (comint-send-input nil )	)))
-	 ;; On garde l'antépénultième sortie  
+
+	 ;; On garde l'avant dernière sortie
+	 ;; Puis l'antépénultieme ligne
 	 (setq giac-last-output  (car
-				  (split-string
-				   (car
-				    (last sortie-brute 3)
-				    ) "\n")
+				  (last 
+				   (split-string
+				    (car  (last sortie-brute 2))
+				    "\n")
+				   3 )
 				  ))
+;	 (message "ouput B:%s"  (split-string   (car  (last sortie-brute 2))  "\n"))
+;	 (message "ouput C:%s"   (car (last sortie-brute 2)  ))
+;	 (message "ouput D:%s"  (cdr (split-string (car (last sortie-brute 2) ) "\n" )))
 	 
 	 (string-match ".*\"\\(.*?\\)\""  giac-last-output  )
+
 	 ;;Si :latex t, nettoyer la sortie et la mettre entre \( \)
-	 (if (string= latex "t") (concat "\\(" (match-string 1 giac-last-output ) "\\)") giac-last-output)
+	 (if (string= latex "t")
+	     (concat "\\(" (match-string 1 giac-last-output ) "\\)") giac-last-output)
 	 )
 	 
        
@@ -222,10 +225,10 @@ specifying a var of the same value."
 
 (defun org-babel-giac-elisp-to-giac (val)
   "Return a string of giac code which evaluates to VAL."
-  
+  (message "%S" val)
   (if (listp val)
       (concat "[" (mapconcat #'org-babel-giac-elisp-to-giac val ", ") "]")
-    (format "%s; " val)))
+    (format "%s" val)))
 
 
 

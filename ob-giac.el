@@ -72,32 +72,27 @@
 	(vars (org-babel--get-vars (or processed-params (org-babel-process-params params))))
 	(latex (cdr (assq :latex processed-params)))
 	)
-    ;; (setq-local maliste vars)
-    ;; (while maliste
-    ;;   (message (format "%s::: %s" (car (car maliste)) (cdr (car maliste)))
-    ;;     (setq maliste (cdr maliste)))
-    ;;   )
     
     ;; Remove empty lines
- 
-   ; (setf body (replace-regexp-in-string "^[:empty:]*\n" "" body))
-     ;; Remove newline in function body
-	 ;(setf full-body (replace-regexp-in-string ";[[:blank:]]*\n" "; " full-body))
-	 ;(setf full-body (replace-regexp-in-string "{[[:blank:]]*\n" "{ " full-body))
-	 ;(setf full-body (replace-regexp-in-string "}[[:blank:]]*\n" "} " full-body))
-    (message "BI:%s" body)                                                
+    ;; Remove newline in function body
+    ;; Remove tabs
+
+
     (setf body
 	  (replace-regexp-in-string "\t" ""
 	  (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 "
           (replace-regexp-in-string "^[:empty:]*\n" "" body)))
 	  )
-   (message "BF:%s" body)
+    (message (format "vars: %s" vars))
+    ;; Add variable defintion at the begining if needed
+    ;; Add latex export at the end if needed
     (concat
      (mapconcat ;; define any variables
-      (lambda (pair)
-        (format "%s:=%s;"
-                (car pair) (org-babel-giac-elisp-to-giac (cdr pair))))
-      vars)  "\n"   body "\n" (if (string= latex "t") "latex(ans(-1))"))
+      (lambda (pair) (org-babel-giac-elisp-to-giac pair)) vars)
+     "\n"
+     body
+     "\n"
+     (if (string= latex "t") "latex(ans(-1))"))
     )
   )
 
@@ -208,38 +203,32 @@ This function is called by `org-babel-execute-src-block'"
 
 
 
-(defun org-babel-giac-var-to-giac (pair)
-  "Convert an elisp var into a string of giac source code
+
+
+(defun org-babel-giac-elisp-to-giac (pair)
+  "Convert an org var into a string of giac source code
 specifying a var of the same value."
-  (message "%S" pair)
-  (let ((var (car pair))
-        (val (cdr pair)))
-    (message "%s = %s" var val)
-    (when (symbolp val)
-      (setq val (symbol-name val))
-      (when (= (length val) 1)
-        (setq val (string-to-char val))))
-    (format "%S:= %s$" var
-	    (org-babel-giac-elisp-to-giac val)))
+  (let (
+	(variable (car pair))
+	(valeur (if (stringp (cdr pair))
+		  (string-trim (cdr pair))
+		  (cdr pair)))
+	)
+    (format "%s:=%s;" variable valeur)
+    )
   )
-
-(defun org-babel-giac-elisp-to-giac (val)
-  "Return a string of giac code which evaluates to VAL."
-  (message "%S" val)
-  (if (listp val)
-      (concat "[" (mapconcat #'org-babel-giac-elisp-to-giac val ", ") "]")
-    (format "%s" val)))
+ 
 
 
 
-(defun org-babel-giac-table-or-string (results)
-  "If the results look like a table, then convert them into an
-Emacs-lisp table, otherwise return the results as a string."
-  )
+;(defun org-babel-giac-table-or-string (results)
+;  "If the results look like a table, then convert them into an
+;Emacs-lisp table, otherwise return the results as a string."
+;  )
 
 (defun org-babel-giac-initiate-session (&optional session)
   "If there is not a current inferior-process-buffer in SESSION then create.
-Return the initialized session."
+Return the initialized session. Useless"
   (unless (string= session "none")
 
     (let ((session (or session "*giac*")))
@@ -250,11 +239,6 @@ Return the initialized session."
     
     ))
 
-;; (defvar giac-font-lock-keywords
-;;   (list
-;;    ;; highlight all the reserved commands.
-;;    `(,(concat "\\_<" (regexp-opt giac-keywords) "\\_>") . font-lock-keyword-face))
-;;   "Additional expressions to highlight in `giac-mode'.")
 
 (defun giac-dynamic-completion-function ()
   (when-let* ((bds (bounds-of-thing-at-point 'symbol))

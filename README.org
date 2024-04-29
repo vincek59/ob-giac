@@ -16,9 +16,6 @@ sources *giac*.
     )
 #+end_src
 
-#+RÉSULTATS:
-
-
 
 * Configuration
 

@@ -83,7 +83,6 @@
 	  (replace-regexp-in-string "\\(;\\|{\\|}\\)[[:blank:]]*\n" "\\1 "
           (replace-regexp-in-string "^[:empty:]*\n" "" body)))
 	  )
-    (message (format "vars: %s" vars))
     ;; Add variable defintion at the begining if needed
     ;; Add latex export at the end if needed
     (concat
@@ -120,10 +119,7 @@
 (defun org-babel-execute:giac (body params)
   "Execute a block of Giac code with org-babel.
 This function is called by `org-babel-execute-src-block'"
-  ;(message "Executing Giac source code block")
-  
-  ;(message "body: %s " body)
- 
+  (message "Executing Giac source code block")
        (let* ((processed-params (org-babel-process-params params))
          ;; set the session if the value of the session keyword is not the
          ;; string `none'
@@ -149,7 +145,6 @@ This function is called by `org-babel-execute-src-block'"
 				(session (format "%s" org-babel-giac-eoe)  full-body)
 			      (dolist (code (list full-body ))
 				(insert (org-babel-chomp code))
-;	(message "input: %s" (org-babel-chomp code))
 				(comint-send-input nil t))
 			      (insert (format "%s" org-babel-giac-eoe) )
       			      (comint-send-input nil )	)))
@@ -163,9 +158,6 @@ This function is called by `org-babel-execute-src-block'"
 				    "\n")
 				   3 )
 				  ))
-;	 (message "ouput B:%s"  (split-string   (car  (last sortie-brute 2))  "\n"))
-;	 (message "ouput C:%s"   (car (last sortie-brute 2)  ))
-;	 (message "ouput D:%s"  (cdr (split-string (car (last sortie-brute 2) ) "\n" )))
 	 
 	 (string-match ".*\"\\(.*?\\)\""  giac-last-output  )
 
